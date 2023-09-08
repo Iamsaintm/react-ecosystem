@@ -5,6 +5,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
@@ -53,11 +54,11 @@ function HomePage() {
   );
 }
 
-function Profile() {
+function ProfilePage() {
   return <div className="App">Profile Page</div>;
 }
 
-function Friend() {
+function FriendPage() {
   const { userId } = useParams();
   const [friend, setFriend] = useState(null);
   const fetchFriendDetail = async () => {
@@ -84,26 +85,54 @@ function Friend() {
   );
 }
 
-function Feed() {
+function FeedPage() {
   return <div className="App">Feed Page</div>;
 }
 
-function NotFoundPage() {
-  return <div className="App">404 : Not Found</div>;
+function AppLayout() {
+  return (
+    <>
+      <div>
+        <Link to="/">home</Link>
+        <Link to="/profile">profile</Link>
+        <Link to="/profile/5">friend</Link>
+        <Link to="/feed">feed</Link>
+      </div>
+      <div>
+        <Outlet />
+      </div>
+    </>
+  );
 }
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
+    <Routes>
+      {/* Parent */}
+      <Route path="/" element={<AppLayout />}>
+        {/* Child */}
+        <Route path="" element={<HomePage />} />
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="profile/:userId" element={<FriendPage />} />
+        <Route path="feed" element={<FeedPage />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
+);
+
+/*
+<BrowserRouter>
     <Link to="/">home</Link>
     <Link to="/profile">profile</Link>
     <Link to="/profile/5">friend</Link>
     <Link to="/feed">feed</Link>
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/:userId" element={<Friend />} />
-      <Route path="/feed" element={<Feed />} />
-      {/* <Route path="*" element={<NotFoundPage />} /> */}
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/profile/:userId" element={<FriendPage />} />
+      <Route path="/feed" element={<FeePage />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   </BrowserRouter>
-);
+*/
