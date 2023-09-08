@@ -1,32 +1,71 @@
+import { useState, createContext, useContext } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createContext, useContext, useState } from "react";
+import axios from "axios";
+// สร้าง <AuthContext/> สำหรับ Provide isAuth,handleAuth ให้ <App/>
 
-// AuthContext
 const AuthContext = createContext();
 
-function AuthContextProvider(props) {
+function AuthContextProvider({ children }) {
   const [isAuth, setIsAuth] = useState(false);
-  const handleAuth = () => {
-    setIsAuth(!isAuth);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState({ name: "Guest" });
+
+  // const handleAuth = () => {
+  //   if (!isAuth) {
+  //     setIsLoading(true);
+  //     setTimeout(() => {
+  //       setIsLoading(false);
+  //     }, 3000);
+  //   } else {
+  //     setIsAuth(false);
+  //   }
+  // };
+
+  const handleAuth = async () => {
+    // Login => Logout
+    if (isAuth) {
+      setIsAuth(false);
+      setUser({ name: "Guest" });
+      return;
+    }
+
+    // Logout => Login
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/users/1"
+      );
+      setUser(response.data);
+      setIsAuth(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    }
   };
-  const shareObj = { toggleAuth: handleAuth, isAuth: isAuth };
+
+  // const shareObj = { isAuth, handleAuth };
   return (
-    <AuthContext.Provider value={shareObj}>
-      {props.children}
+    <AuthContext.Provider value={{ isAuth, handleAuth, isLoading, user }}>
+      {children}
     </AuthContext.Provider>
   );
 }
 
 function App() {
-  const auth = useContext(AuthContext);
-
+  const { isAuth, handleAuth, isLoading, user } = useContext(AuthContext);
   return (
     <div className="App">
-      <h3>Welocome.. {auth.isAuth ? "Guest" : "User"}</h3>
-      <button onClick={auth.toggleAuth}>
-        {auth.isAuth ? "Login" : "Logout"}
-      </button>
+      {isLoading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <h1>Welcome.. {!isAuth ? "Guest" : user?.name} </h1>
+      )}
+      <button onClick={handleAuth}>{!isAuth ? "Login" : "Logout"}</button>
     </div>
   );
 }
