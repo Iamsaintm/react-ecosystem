@@ -3,7 +3,8 @@ import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
@@ -22,7 +23,7 @@ function HomePage() {
   const fetchFriend = async () => {
     try {
       const response = await axios.get("/users");
-      console.log(response.data);
+      // console.log(response.data);
       setFriend(response.data);
     } catch (error) {
       console.log(error);
@@ -57,13 +58,39 @@ function Profile() {
 }
 
 function Friend() {
-  return <div className="App">Friend Page</div>;
+  const { userId } = useParams();
+  const [friend, setFriend] = useState(null);
+  const fetchFriendDetail = async () => {
+    try {
+      const { data } = await axios.get(`/users/${userId}`);
+      // console.log(data);
+      setFriend(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFriendDetail();
+  }, []);
+  return (
+    <div className="App">
+      {friend && (
+        <div className="friend">
+          <h3>{friend.name}</h3>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function Feed() {
   return <div className="App">Feed Page</div>;
 }
 
+function NotFoundPage() {
+  return <div className="App">404 : Not Found</div>;
+}
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Link to="/">home</Link>
@@ -73,8 +100,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/:id" element={<Friend />} />
+      <Route path="/profile/:userId" element={<Friend />} />
       <Route path="/feed" element={<Feed />} />
+      {/* <Route path="*" element={<NotFoundPage />} /> */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   </BrowserRouter>
 );
