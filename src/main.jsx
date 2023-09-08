@@ -1,13 +1,23 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
 function HomePage() {
   const [friend, setFriend] = useState([]);
+  const navigate = useNavigate();
+
+  const handleNavigate = (userId) => {
+    if (userId == 1) {
+      navigate("/profile");
+    } else {
+      navigate(`/profile/${userId}`);
+    }
+  };
 
   const fetchFriend = async () => {
     try {
@@ -24,7 +34,20 @@ function HomePage() {
   return (
     <div className="App">
       <h1>Home Page</h1>
-      {/* <button onClick={fetchFriend}>Get FriendList</button> */}
+      {friend.map((f) => (
+        <div
+          className="friend"
+          key={f.id}
+          onClick={() => {
+            handleNavigate(f.id);
+          }}
+        >
+          <h3>{f.name}</h3>
+          <h5>
+            {f.email}, {f.phone}
+          </h5>
+        </div>
+      ))}
     </div>
   );
 }
