@@ -19,3 +19,9 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
+
+a {
+  padding: 10px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
